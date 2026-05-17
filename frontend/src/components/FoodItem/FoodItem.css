@@ -1,0 +1,258 @@
+/* ============================================
+   FOOD ITEM CARD — Premium hover card
+   ============================================ */
+
+/* FILE: frontend/src/components/FoodItem/FoodItem.css */
+/* ADD at top */
+
+/* Cards fade in as they appear on screen */
+@keyframes cardReveal {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.food-item {
+  animation: cardReveal 0.5s ease both;
+}
+
+/* Each card animates slightly later than previous */
+/* This creates a stagger effect */
+.food-display-list .food-item:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.food-display-list .food-item:nth-child(2) {
+  animation-delay: 0.10s;
+}
+
+.food-display-list .food-item:nth-child(3) {
+  animation-delay: 0.15s;
+}
+
+.food-display-list .food-item:nth-child(4) {
+  animation-delay: 0.20s;
+}
+
+.food-display-list .food-item:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+.food-display-list .food-item:nth-child(6) {
+  animation-delay: 0.30s;
+}
+
+.food-display-list .food-item:nth-child(7) {
+  animation-delay: 0.35s;
+}
+
+.food-display-list .food-item:nth-child(8) {
+  animation-delay: 0.40s;
+}
+
+.food-item {
+  width: 100%;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  animation: scaleIn 0.4s ease both;
+  cursor: pointer;
+}
+
+.food-item:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-md);
+  border-color: transparent;
+}
+
+/* Image container — fixed height, no stretching */
+.food-item-img-container {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: var(--orange-light);
+}
+
+.food-item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.4s ease;
+  display: block;
+}
+
+.food-item:hover .food-item-image {
+  transform: scale(1.06);
+}
+
+/* Category badge on image */
+.food-item-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--orange);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 50px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* Add to cart button — bottom right of image */
+.food-item-img-container .add {
+  width: 38px;
+  height: 38px;
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: transform 0.2s ease, box-shadow 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.food-item-img-container .add:hover {
+  transform: scale(1.12);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+/* Counter when item already in cart */
+.food-item-counter {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 50px;
+  background: white;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.food-item-counter img {
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.food-item-counter img:hover {
+  transform: scale(1.15);
+}
+
+.food-item-counter p {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-dark);
+  min-width: 16px;
+  text-align: center;
+}
+
+/* Info section below image */
+.food-item-info {
+  padding: 16px 18px 18px;
+}
+
+/* Name + rating row */
+.food-item-name-rating {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.food-item-name-rating p {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-dark);
+  letter-spacing: -0.01em;
+}
+
+.food-item-name-rating img {
+  width: 68px;
+  height: auto;
+}
+
+/* Description */
+.food-item-desc {
+  font-size: 13px;
+  color: var(--text-light);
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+/* Price row */
+.food-item-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.food-item-price {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--orange);
+  letter-spacing: -0.01em;
+}
+
+/* "Pure Veg" tag */
+.food-item-veg-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: #2d8a00;
+  background: #edfce0;
+  padding: 3px 10px;
+  border-radius: 50px;
+  letter-spacing: 0.03em;
+}
+
+.fav-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 2;
+  transition: transform 0.2s;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.fav-btn:hover {
+  transform: scale(1.2);
+}
+
+body.dark .food-item {
+  background: var(--card-bg);
+  border-color: var(--border);
+}
+
+body.dark .food-item-name-rating p {
+  color: var(--text-dark);
+}
+
+body.dark .food-item-desc {
+  color: var(--text-light);
+}
+
+body.dark .food-item-counter {
+  background: var(--card-bg);
+}

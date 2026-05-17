@@ -1,0 +1,141 @@
+/* ============================================
+   FOOTER — Premium dark footer
+   ============================================ */
+
+.footer {
+    background: var(--dark);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 70px 6vw 30px;
+    margin-top: 80px;
+    border-radius: 32px 32px 0 0;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 60px;
+    padding-bottom: 50px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Left section */
+.footer-content-left {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.footer-logo {
+    height: 38px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+}
+
+.footer-content-left p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.5);
+    max-width: 320px;
+}
+
+.footer-social-icons {
+    display: flex;
+    gap: 12px;
+}
+
+.footer-social-icons img {
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s, transform 0.2s;
+    border-radius: 8px;
+}
+
+.footer-social-icons img:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+/* Center + Right sections */
+.footer-content-center,
+.footer-content-right {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.footer-content-center h2,
+.footer-content-right h2 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.footer-content-center ul,
+.footer-content-right ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.footer-content-center li,
+.footer-content-right li {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.footer-content-center li:hover,
+.footer-content-right li:hover {
+    color: var(--orange);
+}
+
+/* Bottom row */
+.footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 28px;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.footer-copyright {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.footer-legal {
+    display: flex;
+    gap: 20px;
+    font-size: 13px;
+}
+
+.footer-legal a {
+    color: rgba(255, 255, 255, 0.3);
+    transition: color 0.2s;
+}
+
+.footer-legal a:hover {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+@media (max-width: 750px) {
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 36px;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+}

@@ -1,0 +1,32 @@
+/* ============================================================
+   FILE: admin/src/components/Navbar/Navbar.css
+   CHANGES: Added border-bottom, height, better logo size
+   ============================================================ */
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4%;
+    height: 70px;
+    background: white;
+    border-bottom: 1.5px solid #f0e4d8;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.navbar .logo {
+    height: 44px;
+    width: auto;
+    object-fit: contain;
+}
+
+.navbar .profile {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid #f0e4d8;
+    object-fit: cover;
+    cursor: pointer;
+}

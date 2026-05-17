@@ -1,0 +1,424 @@
+/* ============================================================
+    PURPOSE: Global CSS reset + design tokens + animations
+    Replace your entire :root and body.dark section with this 
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+
+:root {
+  --orange: #ff5c1a;
+  --orange-dark: #e04800;
+  --orange-light: #fff3ee;
+  --dark: #1a1208;
+  --text-dark: #2d2010;
+  --text-mid: #6b5b4e;
+  --text-light: #a8927e;
+  --bg: #fffaf7;
+  --white: #ffffff;
+  --border: #f0e4d8;
+  --card-bg: #ffffff;
+  --shadow-sm: 0 2px 12px rgba(255, 92, 26, 0.08);
+  --shadow-md: 0 8px 32px rgba(255, 92, 26, 0.14);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.12);
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 100px;
+}
+
+/* ── DARK MODE — ALL variables change ── */
+body.dark {
+  --bg: #111111;
+  --white: #1e1e1e;
+  --card-bg: #1e1e1e;
+  --border: #2e2e2e;
+  --text-dark: #f0f0f0;
+  --text-mid: #b0b0b0;
+  --text-light: #777777;
+  --orange-light: #2a1a0e;
+  --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Smooth transition for EVERYTHING */
+*,
+*::before,
+*::after {
+  transition: background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  font-family: 'DM Sans', sans-serif;
+  background-color: var(--bg);
+  color: var(--text-dark);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── DARK MODE COMPONENT FIXES ── */
+
+/* Body background */
+body.dark {
+  background-color: var(--bg);
+  color: var(--text-dark);
+}
+
+/* Navbar */
+body.dark .navbar {
+  background: rgba(17, 17, 17, 0.95);
+  border-bottom-color: var(--border);
+}
+
+body.dark .navbar-menu a {
+  color: var(--text-mid);
+}
+
+body.dark .navbar-menu a:hover {
+  color: var(--orange);
+}
+
+/* Dark toggle button */
+body.dark .dark-toggle {
+  background: #2e2e2e;
+  border-color: #3e3e3e;
+  color: white;
+}
+
+/* Food cards */
+body.dark .food-item {
+  background: var(--card-bg);
+  border-color: var(--border);
+}
+
+body.dark .food-item-name-rating p {
+  color: var(--text-dark);
+}
+
+body.dark .food-item-desc {
+  color: var(--text-light);
+}
+
+body.dark .food-item-price {
+  color: var(--orange);
+}
+
+body.dark .food-item-counter {
+  background: #2e2e2e;
+  border: 1px solid var(--border);
+}
+
+body.dark .food-item-counter p {
+  color: white;
+}
+
+/* Category filter */
+body.dark .explore-menu h1 {
+  color: var(--text-dark);
+}
+
+body.dark .explore-menu-text {
+  color: var(--text-mid);
+}
+
+body.dark .explore-menu-list-item {
+  background: var(--card-bg);
+  border-color: var(--border);
+}
+
+body.dark .explore-menu-list-item p {
+  color: var(--text-mid);
+}
+
+body.dark .explore-menu-list-item.active-item {
+  border-color: var(--orange);
+  background: var(--orange-light);
+}
+
+/* Search bar */
+body.dark .search-bar {
+  background: var(--card-bg);
+  border-color: var(--border);
+}
+
+body.dark .search-bar input {
+  background: transparent;
+  color: var(--text-dark);
+}
+
+/* Header/Hero */
+body.dark .header {
+  background: linear-gradient(135deg, #1a0f08, #2a1508);
+}
+
+body.dark .header-badge {
+  background: #2e2e2e;
+  border-color: #3e3e3e;
+  color: var(--text-mid);
+}
+
+body.dark .header-contents h2 {
+  color: var(--text-dark);
+}
+
+body.dark .header-contents>p {
+  color: var(--text-mid);
+}
+
+body.dark .header-stats {
+  background: rgba(30, 30, 30, 0.7);
+  border-color: var(--border);
+}
+
+body.dark .stat-label {
+  color: var(--text-light);
+}
+
+body.dark .header-btn-secondary {
+  background: #2e2e2e;
+  border-color: #3e3e3e;
+  color: var(--text-dark);
+}
+
+/* Cart page */
+body.dark .cart-total,
+body.dark .cart-promocode {
+  background: var(--card-bg);
+  border-color: var(--border);
+}
+
+body.dark .cart-total h2 {
+  color: var(--text-dark);
+}
+
+body.dark .cart-total-details {
+  color: var(--text-mid);
+}
+
+body.dark .cart-promocode-input input {
+  background: #2a2a2a;
+  border-color: var(--border);
+  color: var(--text-dark);
+}
+
+/* My Orders */
+body.dark .my-orders-order {
+  background: var(--card-bg);
+  border-color: var(--border);
+}
+
+body.dark .order-items-text {
+  color: var(--text-mid);
+}
+
+body.dark .order-amount {
+  color: var(--text-dark);
+}
+
+/* Login Popup */
+body.dark .login-popup-container {
+  background: var(--card-bg);
+}
+
+body.dark .login-popup-title h2 {
+  color: var(--text-dark);
+}
+
+body.dark .login-popup-subtitle {
+  color: var(--text-mid);
+}
+
+body.dark .login-popup-inputs input {
+  background: #2a2a2a;
+  border-color: var(--border);
+  color: var(--text-dark);
+}
+
+body.dark .login-popup-condition p {
+  color: var(--text-light);
+}
+
+body.dark .login-popup-switch {
+  color: var(--text-light);
+}
+
+/* Place Order */
+body.dark .place-order-left input {
+  background: #2a2a2a;
+  border-color: var(--border);
+  color: var(--text-dark);
+}
+
+body.dark .place-order-left .title {
+  color: var(--text-dark);
+}
+
+body.dark .place-order-right .cart-total {
+  background: var(--card-bg);
+  border-color: var(--border);
+}
+
+/* Footer */
+body.dark .footer {
+  background: #0a0a0a;
+}
+
+/* Profile page */
+body.dark .profile-header {
+  background: linear-gradient(135deg, #1a0f08, #2a1508);
+}
+
+body.dark .profile-card {
+  background: var(--card-bg);
+  border-color: var(--border);
+}
+
+body.dark .profile-card h4 {
+  color: var(--text-dark);
+}
+
+body.dark .profile-card p {
+  color: var(--text-light);
+}
+
+body.dark .profile-about {
+  background: var(--card-bg);
+  border-color: var(--border);
+}
+
+body.dark .profile-about h3 {
+  color: var(--text-dark);
+}
+
+body.dark .profile-about p {
+  color: var(--text-mid);
+}
+
+body.dark .profile-info h2 {
+  color: var(--text-dark);
+}
+
+body.dark .profile-info p {
+  color: var(--text-mid);
+}
+
+/* App container */
+body.dark .app {
+  background: var(--bg);
+}
+
+/* Section headings */
+body.dark .food-display h2 {
+  color: var(--text-dark);
+}
+
+body.dark .food-display-count {
+  color: var(--text-light);
+}
+
+/* Sort select */
+body.dark .sort-select {
+  background: var(--card-bg);
+  border-color: var(--border);
+  color: var(--text-dark);
+}
+
+/* AppDownload */
+body.dark .app-download {
+  background: linear-gradient(135deg, #1a0f08, #2a1508);
+  border-color: var(--border);
+}
+
+body.dark .app-download p {
+  color: var(--text-dark);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: 'DM Sans', sans-serif;
+}
+
+.app {
+  width: min(88%, 1280px);
+  margin: 0 auto;
+}
+
+/* ── Animations ──────────────────────── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 750px) {
+  .app {
+    width: 94%;
+  }
+}

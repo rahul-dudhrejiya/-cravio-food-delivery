@@ -1,0 +1,231 @@
+/* ============================================
+   HEADER — Hero Section
+   ============================================
+
+   THE BIG PROBLEM YOU HAD:
+   Your header used: background: url('/header_img.png')
+   But the image is a transparent PNG (no background color behind it).
+   So browser showed the CHECKERBOARD pattern (transparent = no color).
+
+   THE FIX:
+   We add a warm gradient background BEHIND the image.
+   The image sits on top, and the gradient fills transparent areas.
+   This makes it look like a proper food delivery hero section.
+   ============================================ */
+
+.header {
+    /* Full viewport width hero — sits outside .app container */
+    width: 100%;
+    min-height: 88vh;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+
+    /* WHY this gradient?
+     - Deep warm brown at top-left = restaurant/food premium feel
+     - Lighter orange at bottom = energetic, appetizing
+     - The food image overlays this — transparent areas show gradient */
+    background: linear-gradient(135deg,
+            #1c0f00 0%,
+            #2d1a00 30%,
+            #3d2200 55%,
+            #ff5c1a 100%);
+    border-radius: 0 0 40px 40px;
+    margin-bottom: 60px;
+}
+
+/* The actual food image — positioned as decorative right-side element */
+.header-bg-image {
+    position: absolute;
+    right: -2%;
+    top: 0;
+    height: 100%;
+    width: 65%;
+    object-fit: cover;
+    object-position: left center;
+    /* WHY this mask? Creates a smooth fade from image into the dark gradient
+     so it doesn't look like a cut-out rectangle */
+    mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.3) 20%, black 50%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.3) 20%, black 50%);
+    opacity: 0.9;
+}
+
+/* Text content — left side of hero */
+.header-contents {
+    position: relative;
+    z-index: 2;
+    width: min(88%, 1280px);
+    margin: 0 auto;
+    padding: 80px 0;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    animation: fadeInUp 0.8s ease both;
+}
+
+/* Small badge above headline */
+.header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffd5b8;
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    width: fit-content;
+    animation: fadeInUp 0.8s ease 0.1s both;
+}
+
+.header-badge span {
+    font-size: 16px;
+}
+
+/* Main headline */
+.header-contents h2 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: clamp(36px, 5vw, 62px);
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    animation: fadeInUp 0.8s ease 0.2s both;
+}
+
+.header-contents h2 .highlight {
+    color: var(--orange);
+}
+
+/* Subtitle */
+.header-contents p {
+    font-size: clamp(14px, 1.3vw, 17px);
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.7;
+    max-width: 400px;
+    animation: fadeInUp 0.8s ease 0.3s both;
+}
+
+/* Button group */
+.header-btn-group {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+    animation: fadeInUp 0.8s ease 0.4s both;
+}
+
+/* Primary CTA */
+.header-btn-primary {
+    background: var(--orange);
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    border-radius: var(--radius-full);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 8px 24px rgba(255, 92, 26, 0.5);
+    letter-spacing: 0.01em;
+}
+
+.header-btn-primary:hover {
+    background: #ff7a42;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(255, 92, 26, 0.6);
+}
+
+/* Secondary CTA — ghost style */
+.header-btn-secondary {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 15px 28px;
+    border-radius: var(--radius-full);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+}
+
+/* Stats row at bottom of hero */
+.header-stats {
+    display: flex;
+    gap: 36px;
+    margin-top: 12px;
+    animation: fadeInUp 0.8s ease 0.5s both;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-number {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: white;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 4px;
+    letter-spacing: 0.03em;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 800px) {
+    .header {
+        min-height: 70vh;
+        border-radius: 0 0 24px 24px;
+    }
+
+    .header-bg-image {
+        width: 100%;
+        right: 0;
+        opacity: 0.25;
+        mask-image: none;
+        -webkit-mask-image: none;
+    }
+
+    .header-contents {
+        max-width: 100%;
+        padding: 60px 24px;
+    }
+
+    .header-stats {
+        gap: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-btn-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .header-btn-primary,
+    .header-btn-secondary {
+        text-align: center;
+        justify-content: center;
+    }
+}

@@ -1,0 +1,158 @@
+/* ============================================================
+   FILE: admin/src/pages/Add/Add.css
+   CHANGES: Complete rewrite — was only 5 lines before
+   ============================================================ */
+
+.add {
+    padding: 32px 4%;
+    max-width: 760px;
+}
+
+.add-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ── Image Upload ────────────────────── */
+.add-img-upload p {
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.add-img-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    width: fit-content;
+}
+
+.add-img-label span {
+    font-size: 12px;
+    color: #999;
+}
+
+.add-img-preview {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 2px dashed #ddd;
+    transition: border-color 0.2s;
+}
+
+.add-img-label:hover .add-img-preview {
+    border-color: #ff5c1a;
+}
+
+/* ── Form Fields ─────────────────────── */
+.add-product-name p,
+.add-product-description p,
+.add-category p,
+.add-price p {
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.add-product-name input,
+.add-price input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+}
+
+.add-product-name input:focus,
+.add-price input:focus {
+    border-color: #ff5c1a;
+    box-shadow: 0 0 0 3px rgba(255, 92, 26, 0.1);
+}
+
+.add-product-description textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.add-product-description textarea:focus {
+    border-color: #ff5c1a;
+    box-shadow: 0 0 0 3px rgba(255, 92, 26, 0.1);
+}
+
+/* ── Category + Price Row ────────────── */
+.add-category-price {
+    display: flex;
+    gap: 20px;
+}
+
+.add-category {
+    flex: 1.5;
+}
+
+.add-price {
+    flex: 1;
+}
+
+.add-category select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.add-category select:focus {
+    border-color: #ff5c1a;
+}
+
+/* ── Submit Button ───────────────────── */
+.add-btn {
+    width: fit-content;
+    padding: 13px 36px;
+    background: #ff5c1a;
+    color: white;
+    border: none;
+    border-radius: 100px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    box-shadow: 0 4px 14px rgba(255, 92, 26, 0.3);
+}
+
+.add-btn:hover {
+    background: #e04800;
+    transform: translateY(-1px);
+}
+
+/* ── Responsive ──────────────────────── */
+@media (max-width: 600px) {
+    .add-category-price {
+        flex-direction: column;
+    }
+
+    .add {
+        padding: 20px;
+    }
+}

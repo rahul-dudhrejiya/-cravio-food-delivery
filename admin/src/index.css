@@ -1,0 +1,68 @@
+/* ============================================================
+   FILE: admin/src/index.css
+   CHANGES: Added full reset + body + app-content layout
+            (was only :root variables before — missing reset!)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --orange: #ff5c1a;
+  --orange-dark: #e04800;
+  --orange-light: #fff3ee;
+  --dark: #1a1208;
+  --text-dark: #2d2010;
+  --text-mid: #6b5b4e;
+  --text-light: #a8927e;
+  --bg: #fffaf7;
+  --border: #f0e4d8;
+  --shadow-sm: 0 2px 12px rgba(255, 92, 26, 0.08);
+  --shadow-md: 0 8px 32px rgba(255, 92, 26, 0.14);
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-full: 100px;
+}
+
+*,
+*::before,
+*::after {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text-dark);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: 'Outfit', sans-serif;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  background: #e0d0c8;
+}
+
+/* App layout: sidebar + main content side by side */
+.app-content {
+  display: flex;
+  min-height: calc(100vh - 70px);
+}
+
+/* Flex helper used in Add page */
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

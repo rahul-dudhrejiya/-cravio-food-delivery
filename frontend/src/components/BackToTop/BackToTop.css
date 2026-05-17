@@ -1,0 +1,39 @@
+/* FILE: frontend/src/components/BackToTop/BackToTop.css */
+
+.back-to-top {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 44px;
+    height: 44px;
+    background: var(--orange);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(255, 92, 26, 0.4);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    animation: fadeIn 0.3s ease;
+}
+
+.back-to-top:hover {
+    background: var(--orange-dark);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(255, 92, 26, 0.5);
+}
+
+@media (max-width: 600px) {
+    .back-to-top {
+        bottom: 20px;
+        right: 20px;
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+}
