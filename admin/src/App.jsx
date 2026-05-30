@@ -8,7 +8,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 const App = () => {
-  const url = import.meta.env.VITE_API_URL || "http://localhost:5000"
+  const url = import.meta.env.VITE_API_URL || "https://cravio-backend-ss5u.onrender.com/"
 
   return (
     <div>

@@ -21,7 +21,15 @@ const app = express()
 const port = process.env.PORT || 5000
 
 // ── Middlewares ───────────────────────────
-app.use(cors())
+app.use(cors({
+    origin: [
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "https://cravio.vercel.app",
+        "https://cravio-admin.vercel.app"
+    ],
+    credentials: true
+}))
 app.use(express.json())
 
 // Static image serving (for any old local images in uploads/)

@@ -15,7 +15,7 @@ const StoreContextProvider = (props) => {
   const [couponCode, setCouponCode] = useState("")
   const [couponApplied, setCouponApplied] = useState(false)
 
-  const url = "http://localhost:5000"
+  const url = "https://cravio-backend-ss5u.onrender.com/"
 
   // ── Add to cart ──────────────────────────
   const addToCart = async (itemId) => {
