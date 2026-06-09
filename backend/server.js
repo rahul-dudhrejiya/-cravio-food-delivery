@@ -22,12 +22,21 @@ const port = process.env.PORT || 5000
 
 // ── Middlewares ───────────────────────────
 app.use(cors({
-    origin: [
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "https://cravio-food-delivery.vercel.app",
-        "https://cravio-admin.vercel.app"
-    ],
+    origin: function (origin, callback) {
+        const allowed = [
+            "http://localhost:5173",
+            "http://localhost:5174",
+            "https://cravio-food-delivery.vercel.app",
+            "https://cravio-admin.vercel.app"
+        ]
+        // Allow all vercel preview URLs for your project
+        if (!origin || allowed.includes(origin) || origin.endsWith(".vercel.app")) {
+            callback(null, true)
+        } else {
+            callback(new Error("Not allowed by CORS"))
+        }
+    },
+
     credentials: true
 }))
 app.use(express.json())
