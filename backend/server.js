@@ -27,7 +27,7 @@ app.use(cors({
             "http://localhost:5173",
             "http://localhost:5174",
             "https://cravio-food-delivery.vercel.app",
-            "https://cravio-admin.vercel.app"
+            // "https://cravio-admin.vercel.app"
         ]
         // Allow all vercel preview URLs for your project
         if (!origin || allowed.includes(origin) || origin.endsWith(".vercel.app")) {
