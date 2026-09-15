@@ -4,29 +4,36 @@ const foodSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
+        trim: true,
     },
     description: {
         type: String,
         required: true,
+        trim: true,
     },
     price: {
         type: Number,
         required: true,
+        min: 0,
     },
     image: {
-        type: String,  // Now stores Cloudinary https:// URL
+        type: String,
         required: true,
     },
     cloudinary_id: {
-        type: String,   // Stores Cloudinary public_id for deletion
-        default: ""
+        type: String,
+        default: "",
     },
     category: {
         type: String,
         required: true,
+        trim: true,
     },
-})
+}, { timestamps: true })
 
-const foodModel = mongoose.models.food || mongoose.model("Food", foodSchema)
+// Index for instant filtering by category (O(log N))
+foodSchema.index({ category: 1 })
+
+const foodModel = mongoose.models.Food || mongoose.model("Food", foodSchema)
 
 export default foodModel
