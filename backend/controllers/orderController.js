@@ -77,13 +77,12 @@ const placeOrder = async (req, res) => {
             items: verifiedOrderItems,
             amount: finalTotal,
             address: address,
+            status: "Payment Pending",
+            payment: false,
         })
         await newOrder.save()
 
-        // 7. Clear user cart
-        await userModel.findByIdAndUpdate(userId, { cartData: {} })
-
-        // 8. Create Razorpay order with server-calculated amount (in paise)
+        // 7. Create Razorpay order with server-calculated amount (in paise)
         const razorpayOrder = await razorpay.orders.create({
             amount: Math.round(finalTotal * 100),
             currency: "INR",
@@ -113,24 +112,52 @@ const verifyOrder = async (req, res) => {
         orderId
     } = req.body
 
+    if (!orderId || !razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+        return res.status(400).json({
+            success: false,
+            message: "Missing payment verification parameters"
+        })
+    }
+
     try {
+        // 1. Verify HMAC-SHA256 signature
         const body = razorpay_order_id + "|" + razorpay_payment_id
         const expectedSig = crypto
             .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
             .update(body)
             .digest("hex")
 
+        const order = await orderModel.findById(orderId)
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" })
+        }
+
         if (expectedSig === razorpay_signature) {
-            await orderModel.findByIdAndUpdate(orderId, { payment: true })
-            res.json({ success: true, message: "Payment verified" })
+            // 2. Signature valid: mark order paid and update status
+            await orderModel.findByIdAndUpdate(orderId, {
+                payment: true,
+                status: "Food Processing",
+                razorpayOrderId: razorpay_order_id,
+                razorpayPaymentId: razorpay_payment_id,
+            })
+
+            // 3. Clear customer's cart now that payment is confirmed
+            await userModel.findByIdAndUpdate(order.userId, { cartData: {} })
+
+            return res.status(200).json({ success: true, message: "Payment verified successfully" })
         } else {
-            await orderModel.findByIdAndDelete(orderId)
-            res.json({ success: false, message: "Invalid signature" })
+            // 4. Signature invalid: NEVER delete order; mark it as Payment Failed for audit
+            await orderModel.findByIdAndUpdate(orderId, {
+                payment: false,
+                status: "Payment Failed"
+            })
+
+            return res.status(400).json({ success: false, message: "Invalid payment signature" })
         }
 
     } catch (error) {
         console.log("verifyOrder error:", error)
-        res.json({ success: false, message: "Verification error" })
+        res.status(500).json({ success: false, message: "Verification error" })
     }
 }
 

@@ -1,32 +1,15 @@
-import { useContext, useEffect } from 'react'
+import { useEffect } from 'react'
 import "./Verify.css"
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { StoreContext } from '../../context/StoreContext';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom'
 
 const Verify = () => {
-
-    const [searchParams,] = useSearchParams();
-    const success = searchParams.get("success")
-    const orderId = searchParams.get("orderId")
-    const { url } = useContext(StoreContext)
-    const navigate = useNavigate();
+    const navigate = useNavigate()
 
     useEffect(() => {
-        const verifyPayment = async () => {
-            const response = await axios.post(url + "/api/order/verify", { success, orderId });
-            if (response.data.success) {
-                navigate("/myorders");
-            }
-            else {
-                navigate("/")
-            }
-        };
-        verifyPayment();
-    }, [url, success, orderId, navigate])
-
-    console.log(success, orderId);
-
+        // Razorpay handles verification directly in the PlaceOrder modal handler callback.
+        // If a user navigates to /verify, safely route them to their orders page.
+        navigate("/myorders", { replace: true })
+    }, [navigate])
 
     return (
         <div className='verify'>

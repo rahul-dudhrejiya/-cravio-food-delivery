@@ -5,9 +5,11 @@ const orderSchema = new mongoose.Schema({
   items: { type: Array, required: true },
   amount: { type: Number, required: true },
   address: { type: Object, required: true },
-  status: { type: String, default: "Food Processing" },
+  status: { type: String, default: "Payment Pending" },
   date: { type: Date, default: Date.now },
   payment: { type: Boolean, default: false },
+  razorpayOrderId: { type: String, default: "" },
+  razorpayPaymentId: { type: String, default: "" },
 })
 
 // FIXED: was mongoose.model.order → mongoose.models.order
