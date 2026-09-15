@@ -1,3 +1,4 @@
+import axios from 'axios'
 import Sidebar from './components/Sidebar/Sidebar'
 import { Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar/Navbar'
@@ -9,6 +10,8 @@ import 'react-toastify/dist/ReactToastify.css'
 
 const App = () => {
   const url = import.meta.env.VITE_API_URL || "https://cravio-backend-ss5u.onrender.com"
+  const adminSecret = import.meta.env.VITE_ADMIN_SECRET || "cravio_secret_key_change_this_in_production"
+  axios.defaults.headers.common["admin-token"] = adminSecret
 
   return (
     <div>

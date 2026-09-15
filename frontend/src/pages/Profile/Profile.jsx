@@ -1,17 +1,34 @@
-import { useContext, useState } from 'react'
+import { useContext, useState, useEffect } from 'react'
 import { StoreContext } from '../../context/StoreContext'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import './Profile.css'
 
 const Profile = () => {
-    const { token, setToken, } = useContext(StoreContext)
+    const { token, setToken, url } = useContext(StoreContext)
     const navigate = useNavigate()
 
-    // Fake user data — in real app fetch from /api/user/profile
-    const [user] = useState({
+    const [user, setUser] = useState({
         name: localStorage.getItem("userName") || "Cravio User",
         email: localStorage.getItem("userEmail") || "user@email.com"
     })
+
+    useEffect(() => {
+        if (!token) return
+        const fetchProfile = async () => {
+            try {
+                const res = await axios.get(url + "/api/user/profile", { headers: { token } })
+                if (res.data.success && res.data.user) {
+                    setUser({ name: res.data.user.name, email: res.data.user.email })
+                    localStorage.setItem("userName", res.data.user.name)
+                    localStorage.setItem("userEmail", res.data.user.email)
+                }
+            } catch (err) {
+                console.log("Error fetching profile:", err)
+            }
+        }
+        fetchProfile()
+    }, [token, url])
 
     const logout = () => {
         localStorage.removeItem("token")

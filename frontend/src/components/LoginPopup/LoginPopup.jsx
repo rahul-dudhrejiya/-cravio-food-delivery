@@ -42,15 +42,20 @@ const LoginPopup = ({ setShowLogin, }) => {
       if (response.data.success) {
         setToken(response.data.token);
         localStorage.setItem("token", response.data.token);
+        if (response.data.user) {
+          localStorage.setItem("userName", response.data.user.name);
+          localStorage.setItem("userEmail", response.data.user.email);
+        }
         setShowLogin(false);
 
-        toast.success("Welcome to Cravio! 🎉");
+        toast.success(`Welcome to Cravio, ${response.data.user?.name || ''}! 🎉`);
       } else {
         toast.error(response.data.message);
       }
 
     } catch (error) {
-      toast.error("Something went wrong!");
+      const errMsg = error.response?.data?.message || "Something went wrong!";
+      toast.error(errMsg);
       console.log(error);
     } finally {
       setLoading(false);
