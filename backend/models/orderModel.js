@@ -19,12 +19,17 @@ const orderSchema = new mongoose.Schema({
   },
   date: { type: Date, default: Date.now },
   payment: { type: Boolean, default: false },
+  coupon: { type: String, default: null },
+  discount: { type: Number, default: 0, min: 0 },
   razorpayOrderId: { type: String, default: "" },
   razorpayPaymentId: { type: String, default: "" },
 }, { timestamps: true })
 
 // Compound index for instant order retrieval by user sorted by date descending (O(log N))
 orderSchema.index({ userId: 1, date: -1 })
+
+// Index for checking user one-time coupon usage
+orderSchema.index({ userId: 1, coupon: 1, payment: 1 })
 
 // Index for admin dashboard status filtering
 orderSchema.index({ status: 1 })

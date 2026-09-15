@@ -13,6 +13,7 @@ const PlaceOrder = () => {
     cartItems,
     url,
     discount,
+    couponCode,
     markCouponUsed,
   } = useContext(StoreContext)
 
@@ -67,10 +68,10 @@ const PlaceOrder = () => {
     })
 
     try {
-      // Step 1: Create order in backend
+      // Step 1: Create order in backend (server validates prices and coupon)
       const response = await axios.post(
         url + "/api/order/place",
-        { address: data, items: orderItems, amount: totalAmount },
+        { address: data, items: orderItems, couponCode },
         { headers: { token } }
       )
 

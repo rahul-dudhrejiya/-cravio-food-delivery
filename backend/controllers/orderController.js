@@ -3,6 +3,7 @@ import userModel from "../models/userModel.js"
 import foodModel from "../models/foodModel.js"
 import Razorpay from "razorpay"
 import crypto from "crypto"
+import { VALID_COUPONS, calculateDiscount } from "../utils/couponEngine.js"
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -15,7 +16,7 @@ const DELIVERY_FEE = 40
 // ── Place Order ──────────────────────────
 const placeOrder = async (req, res) => {
     try {
-        const { userId, items, address } = req.body
+        const { userId, items, address, couponCode } = req.body
 
         // 1. Validate items array
         if (!items || !Array.isArray(items) || items.length === 0) {
@@ -68,14 +69,56 @@ const placeOrder = async (req, res) => {
             })
         }
 
-        // 5. Compute final server-verified total
-        const finalTotal = subtotal + DELIVERY_FEE
+        // 5. Authoritatively validate and apply coupon if provided
+        let discount = 0
+        let appliedCouponCode = null
 
-        // 6. Save order to DB with server-calculated amount
+        if (couponCode && typeof couponCode === "string" && couponCode.trim()) {
+            const normalizedCode = couponCode.trim().toUpperCase()
+            const coupon = VALID_COUPONS[normalizedCode]
+
+            if (!coupon) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Invalid coupon code: ${normalizedCode}`
+                })
+            }
+
+            if (subtotal < coupon.minOrder) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Coupon ${normalizedCode} requires a minimum order of ₹${coupon.minOrder}`
+                })
+            }
+
+            if (coupon.oneTime) {
+                const alreadyUsed = await orderModel.findOne({
+                    userId: userId,
+                    coupon: normalizedCode,
+                    payment: true
+                })
+                if (alreadyUsed) {
+                    return res.status(400).json({
+                        success: false,
+                        message: `Coupon ${normalizedCode} can only be used once per customer.`
+                    })
+                }
+            }
+
+            discount = calculateDiscount(coupon, subtotal)
+            appliedCouponCode = normalizedCode
+        }
+
+        // 6. Compute final server-verified total
+        const finalTotal = Math.max(0, subtotal + DELIVERY_FEE - discount)
+
+        // 7. Save order to DB with server-calculated amount and coupon details
         const newOrder = new orderModel({
             userId: userId,
             items: verifiedOrderItems,
             amount: finalTotal,
+            coupon: appliedCouponCode,
+            discount: discount,
             address: address,
             status: "Payment Pending",
             payment: false,
@@ -194,4 +237,60 @@ const updateStatus = async (req, res) => {
     }
 }
 
-export { placeOrder, verifyOrder, userOrders, listOrders, updateStatus }
+// ── Validate Coupon (Authenticated) ───────
+const validateCoupon = async (req, res) => {
+    try {
+        const { userId, couponCode, subtotal } = req.body
+
+        if (!couponCode || typeof couponCode !== "string") {
+            return res.status(400).json({ success: false, message: "Coupon code is required" })
+        }
+
+        const numSubtotal = Number(subtotal)
+        if (isNaN(numSubtotal) || numSubtotal <= 0) {
+            return res.status(400).json({ success: false, message: "Add items to cart before applying coupon" })
+        }
+
+        const normalizedCode = couponCode.trim().toUpperCase()
+        const coupon = VALID_COUPONS[normalizedCode]
+
+        if (!coupon) {
+            return res.status(400).json({ success: false, message: "Invalid coupon code!" })
+        }
+
+        if (numSubtotal < coupon.minOrder) {
+            return res.status(400).json({
+                success: false,
+                message: `Minimum order of ₹${coupon.minOrder} required for ${normalizedCode}`
+            })
+        }
+
+        if (coupon.oneTime) {
+            const alreadyUsed = await orderModel.findOne({
+                userId: userId,
+                coupon: normalizedCode,
+                payment: true
+            })
+            if (alreadyUsed) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Coupon ${normalizedCode} can only be used once per customer.`
+                })
+            }
+        }
+
+        const discount = calculateDiscount(coupon, numSubtotal)
+        res.status(200).json({
+            success: true,
+            couponCode: normalizedCode,
+            discount,
+            label: coupon.label,
+            desc: coupon.desc
+        })
+    } catch (error) {
+        console.error("validateCoupon error:", error)
+        res.status(500).json({ success: false, message: "Error validating coupon" })
+    }
+}
+
+export { placeOrder, verifyOrder, userOrders, listOrders, updateStatus, validateCoupon }

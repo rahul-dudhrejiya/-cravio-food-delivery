@@ -90,51 +90,49 @@ const StoreContextProvider = (props) => {
     })
   }
 
-  // ── Coupon Codes ─────────────────────────
-  const COUPONS = {
-    "CRAVIO10": { type: "percent", value: 10, desc: "10% off" },
-    "WELCOME20": { type: "percent", value: 20, desc: "20% off" },
-    "FIRST50": { type: "flat", value: 50, desc: "₹50 flat off", oneTime: true },
-  }
-
-  const applyCoupon = (code) => {
+  // ── Coupon Validation (Server Authoritative) ─
+  const applyCoupon = async (code) => {
     if (couponApplied) {
-      toast.error("Coupon already applied!")
+      toast.error("A coupon is already applied!")
       return
     }
 
-    const trimmed = code.trim().toUpperCase()
-    const coupon = COUPONS[trimmed]
-
-    if (!coupon) {
-      toast.error("Invalid coupon code!")
+    const trimmed = code ? code.trim().toUpperCase() : ""
+    if (!trimmed) {
+      toast.error("Please enter a coupon code!")
       return
-    }
-
-    // Check one-time use coupons
-    if (coupon.oneTime) {
-      const usedCoupons = JSON.parse(localStorage.getItem("usedCoupons") || "[]")
-      if (usedCoupons.includes(trimmed)) {
-        toast.error(`${trimmed} can only be used once! 🚫`)
-        return
-      }
     }
 
     const subtotal = getTotalCartAmount()
-
     if (subtotal === 0) {
       toast.error("Add items to cart first!")
       return
     }
 
-    const discountVal = coupon.type === "percent"
-      ? Math.round((subtotal * coupon.value) / 100)
-      : coupon.value 
+    if (!token) {
+      toast.error("Please log in to apply coupons!")
+      return
+    }
 
-    setDiscount(discountVal)
-    setCouponCode(trimmed)
-    setCouponApplied(true)
-    toast.success(`🎉 Coupon applied! You save ₹${discountVal}`)
+    try {
+      const response = await axios.post(
+        url + "/api/order/validate-coupon",
+        { couponCode: trimmed, subtotal },
+        { headers: { token } }
+      )
+
+      if (response.data.success) {
+        setDiscount(response.data.discount)
+        setCouponCode(response.data.couponCode)
+        setCouponApplied(true)
+        toast.success(`🎉 ${response.data.couponCode} applied! You save ₹${response.data.discount}`)
+      } else {
+        toast.error(response.data.message || "Invalid coupon")
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || "Failed to validate coupon"
+      toast.error(msg)
+    }
   }
 
   const removeCoupon = () => {
@@ -144,18 +142,8 @@ const StoreContextProvider = (props) => {
     toast.info("Coupon removed")
   }
 
-  // Call after successful payment to mark one-time coupons as used
+  // Clear coupon state after successful checkout (server records usage in DB)
   const markCouponUsed = () => {
-    if (couponCode) {
-      const coupon = COUPONS[couponCode]
-      if (coupon && coupon.oneTime) {
-        const used = JSON.parse(localStorage.getItem("usedCoupons") || "[]")
-        if (!used.includes(couponCode)) {
-          localStorage.setItem("usedCoupons", JSON.stringify([...used, couponCode]))
-        }
-      }
-    }
-    // Always clear coupon state after payment
     removeCoupon()
   }
 

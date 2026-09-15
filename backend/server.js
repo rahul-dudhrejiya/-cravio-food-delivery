@@ -10,7 +10,10 @@
 import express from "express"
 import cors from "cors"
 import "dotenv/config"
+import helmet from "helmet"
 import { connectDB } from "./config/db.js"
+import { generalLimiter } from "./middleware/rateLimiter.js"
+import { mongoSanitize } from "./middleware/sanitize.js"
 import foodRouter from "./routes/foodRoute.js"
 import userRouter from "./routes/userRoute.js"
 import cartRouter from "./routes/cartRoute.js"
@@ -19,6 +22,12 @@ import aiRouter from "./routes/aiRoute.js"
 
 const app = express()
 const port = process.env.PORT || 5000
+
+// ── Security Headers & Hardening ─────────
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}))
+app.disable("x-powered-by")
 
 // ── Middlewares ───────────────────────────
 const allowedOrigins = [
@@ -53,11 +62,19 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "token", "Authorization"]
 }))
-app.use(express.json())
+
+// Limit payload size to 1MB to prevent JSON bomb memory exhaustion
+app.use(express.json({ limit: "1mb" }))
+
+// Sanitize incoming payloads against NoSQL operator injection
+app.use(mongoSanitize)
 
 // Static image serving (for any old local images in uploads/)
 // Cloudinary images don't need this — they have their own URL
 app.use("/images", express.static("uploads"))
+
+// ── General API Rate Limiting ─────────────
+app.use("/api", generalLimiter)
 
 // ── Connect Database ──────────────────────
 connectDB()

@@ -1,10 +1,11 @@
 import express from "express"
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import foodModel from "../models/foodModel.js"
+import { aiLimiter } from "../middleware/rateLimiter.js"
 
 const aiRouter = express.Router()
 
-aiRouter.post("/recommend", async (req, res) => {
+aiRouter.post("/recommend", aiLimiter, async (req, res) => {
     let { mood, menuText } = req.body
 
     // 1. Input validation & sanitization
