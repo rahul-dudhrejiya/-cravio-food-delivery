@@ -6,19 +6,17 @@ import { StoreContext } from '../../context/StoreContext'
 import useDarkMode from '../../hooks/useDarkMode'
 
 
-const Navbar = ({ setShowLogin }) => {
+const Navbar = () => {
 
     const [menu, setMenu] = useState("home")
     const [mobileOpen, setMobileOpen] = useState(false)
-    const { token, setToken, cartItems } = useContext(StoreContext)
+    const { token, logout, cartItems, setShowLogin } = useContext(StoreContext)
     const navigate = useNavigate()
     const { isDark, toggleDark } = useDarkMode()
     const [profileOpen, setProfileOpen] = useState(false)
 
-
-    const logout = () => {
-        localStorage.removeItem("token")
-        setToken("")
+    const handleLogout = () => {
+        logout()
         navigate("/")
     }
 
@@ -109,7 +107,7 @@ const Navbar = ({ setShowLogin }) => {
                                     <p>My Orders</p>
                                 </li>
                                 <hr />
-                                <li onClick={() => { logout(); setProfileOpen(false) }}>
+                                <li onClick={() => { handleLogout(); setProfileOpen(false) }}>
                                     <span>🚪</span>
                                     <p>Logout</p>
                                 </li>

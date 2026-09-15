@@ -3,7 +3,7 @@
    CHANGE: Added import for App.css, cleaned conditional render
    ============================================================ */
 
-import { useState } from 'react'
+import { useContext } from 'react'
 import Navbar from './components/Navbar/Navbar'
 import { Route, Routes } from 'react-router-dom'
 import Footer from './components/Footer/Footer'
@@ -17,16 +17,16 @@ import './App.css'
 import Profile from './pages/Profile/Profile'
 import BackToTop from './components/BackToTop/BackToTop'
 import AiRecommend from './components/AiRecommend/AiRecommend'
-
+import { StoreContext } from './context/StoreContext'
 
 const App = () => {
-  const [showLogin, setShowLogin] = useState(false)
+  const { showLogin, setShowLogin } = useContext(StoreContext)
 
   return (
     <>
       {showLogin && <LoginPopup setShowLogin={setShowLogin} />}
       <div className='app'>
-        <Navbar setShowLogin={setShowLogin} />
+        <Navbar />
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='/cart' element={<Cart />} />

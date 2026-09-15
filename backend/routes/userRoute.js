@@ -1,5 +1,5 @@
 import express from "express"
-import { loginUser, registerUser, getProfile } from "../controllers/userController.js"
+import { loginUser, registerUser, getProfile, updateProfile, changePassword } from "../controllers/userController.js"
 import authMiddleware from "../middleware/auth.js"
 import { authLimiter } from "../middleware/rateLimiter.js"
 
@@ -9,5 +9,7 @@ const userRouter = express.Router()
 userRouter.post("/register", authLimiter, registerUser)
 userRouter.post("/login", authLimiter, loginUser)
 userRouter.get("/profile", authMiddleware, getProfile)
+userRouter.put("/profile", authMiddleware, updateProfile)
+userRouter.post("/change-password", authMiddleware, authLimiter, changePassword)
 
 export default userRouter;

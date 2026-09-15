@@ -161,11 +161,135 @@
   color: white;
 }
 
+/* ── Profile Management Section ───────── */
+.profile-tags {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.profile-join-date {
+  font-size: 12px;
+  color: var(--text-light);
+  background: rgba(255, 255, 255, 0.6);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+}
+
+.profile-management-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.profile-mgmt-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  gap: 12px;
+}
+
+.profile-mgmt-item h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 2px;
+}
+
+.profile-mgmt-item p {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+.profile-mgmt-btn {
+  padding: 8px 14px;
+  background: var(--orange-light);
+  color: var(--orange);
+  border: 1px solid #ffd4c4;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.profile-mgmt-btn:hover {
+  background: var(--orange);
+  color: white;
+}
+
+.profile-edit-form {
+  display: flex;
+  gap: 10px;
+  background: #fff8f5;
+  border: 1.5px solid #ffe0d0;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  animation: fadeIn 0.2s ease-in;
+}
+
+.profile-edit-form input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  background: white;
+}
+
+.profile-edit-form input:focus {
+  border-color: var(--orange);
+}
+
+.profile-edit-form button {
+  padding: 10px 20px;
+  background: var(--orange);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.profile-edit-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.profile-edit-form.password-form {
+  flex-direction: column;
+  gap: 10px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* Responsive */
 @media (max-width: 500px) {
   .profile-header {
     flex-direction: column;
     text-align: center;
     padding: 24px;
+  }
+  .profile-mgmt-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .profile-edit-form {
+    flex-direction: column;
   }
 }

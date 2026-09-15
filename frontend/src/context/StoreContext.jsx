@@ -9,6 +9,7 @@ const StoreContextProvider = (props) => {
 
   const [cartItems, setCartItems] = useState({})
   const [token, setToken] = useState("")
+  const [showLogin, setShowLogin] = useState(false)
   const [food_list, setFoodList] = useState([])
   const [favourites, setFavourites] = useState([])
   const [discount, setDiscount] = useState(0)
@@ -16,6 +17,33 @@ const StoreContextProvider = (props) => {
   const [couponApplied, setCouponApplied] = useState(false)
 
   const url = import.meta.env.VITE_API_URL || "https://cravio-backend-ss5u.onrender.com"
+
+  // ── Centralized Logout ───────────────────
+  const logout = () => {
+    localStorage.removeItem("token")
+    localStorage.removeItem("userName")
+    localStorage.removeItem("userEmail")
+    setToken("")
+    setCartItems({})
+    setDiscount(0)
+    setCouponCode("")
+    setCouponApplied(false)
+  }
+
+  // ── Auto-logout on 401 Token Expiration ──
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response && error.response.status === 401 && token) {
+          logout()
+          toast.info("Session expired. Please sign in again.")
+        }
+        return Promise.reject(error)
+      }
+    )
+    return () => axios.interceptors.response.eject(interceptor)
+  }, [token])
 
   // ── Add to cart ──────────────────────────
   const addToCart = async (itemId) => {
@@ -170,6 +198,9 @@ const StoreContextProvider = (props) => {
     url,
     token,
     setToken,
+    showLogin,
+    setShowLogin,
+    logout,
     favourites,
     toggleFavourite,
     discount,

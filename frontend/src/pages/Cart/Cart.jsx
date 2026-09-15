@@ -1,6 +1,7 @@
 import { useState, useContext } from 'react'
 import { StoreContext } from '../../context/StoreContext'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import './Cart.css'
 
 const Cart = () => {
@@ -15,6 +16,8 @@ const Cart = () => {
     couponApplied,
     applyCoupon,
     removeCoupon,
+    token,
+    setShowLogin,
   } = useContext(StoreContext)
 
   const navigate = useNavigate()
@@ -113,7 +116,18 @@ const Cart = () => {
 
               <button
                 className="checkout-btn"
-                onClick={() => navigate('/order')}
+                onClick={() => {
+                  if (cartFoods.length === 0) {
+                    toast.error("Your cart is empty!")
+                    return
+                  }
+                  if (!token) {
+                    toast.info("Please sign in to complete your order 🔑")
+                    setShowLogin(true)
+                    return
+                  }
+                  navigate('/order')
+                }}
               >
                 Proceed to Checkout →
               </button>
