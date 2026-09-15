@@ -30,6 +30,11 @@ const StoreContextProvider = (props) => {
     setCouponApplied(false)
   }
 
+  // ── Clear Cart ───────────────────────────
+  const clearCart = () => {
+    setCartItems({})
+  }
+
   // ── Auto-logout on 401 Token Expiration ──
   useEffect(() => {
     const interceptor = axios.interceptors.response.use(
@@ -192,6 +197,7 @@ const StoreContextProvider = (props) => {
     food_list,
     cartItems,
     setCartItems,
+    clearCart,
     addToCart,
     removeFromCart,
     getTotalCartAmount,

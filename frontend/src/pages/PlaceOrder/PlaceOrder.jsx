@@ -3,6 +3,7 @@ import { StoreContext } from '../../context/StoreContext'
 import './PlaceOrder.css'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 
 const PlaceOrder = () => {
 
@@ -11,6 +12,7 @@ const PlaceOrder = () => {
     token,
     food_list,
     cartItems,
+    clearCart,
     url,
     discount,
     couponCode,
@@ -20,6 +22,8 @@ const PlaceOrder = () => {
   const navigate = useNavigate()
   const DELIVERY_FEE = 40
   const razorpayKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID
+
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false)
 
   // totalAmount at component level — accessible in JSX and functions
   const subtotal = getTotalCartAmount()
@@ -32,6 +36,23 @@ const PlaceOrder = () => {
     zipcode: "", country: "",
     phone: ""
   })
+
+  // Pre-fill user details from session storage
+  useEffect(() => {
+    const savedName = localStorage.getItem("userName") || ""
+    const savedEmail = localStorage.getItem("userEmail") || ""
+    if (savedName || savedEmail) {
+      const parts = savedName.trim().split(" ")
+      const first = parts[0] || ""
+      const last = parts.slice(1).join(" ") || ""
+      setData(prev => ({
+        ...prev,
+        firstName: prev.firstName || first,
+        lastName: prev.lastName || last,
+        email: prev.email || savedEmail
+      }))
+    }
+  }, [])
 
   const onChangeHandler = (event) => {
     const { name, value } = event.target
@@ -58,6 +79,7 @@ const PlaceOrder = () => {
 
   const placeOrder = async (event) => {
     event.preventDefault()
+    if (isPlacingOrder) return
 
     // Build order items from cart
     let orderItems = []
@@ -66,6 +88,14 @@ const PlaceOrder = () => {
         orderItems.push({ ...item, quantity: cartItems[item._id] })
       }
     })
+
+    if (orderItems.length === 0) {
+      toast.error("Your cart is empty!")
+      navigate('/cart')
+      return
+    }
+
+    setIsPlacingOrder(true)
 
     try {
       // Step 1: Create order in backend (server validates prices and coupon)
@@ -76,7 +106,8 @@ const PlaceOrder = () => {
       )
 
       if (!response.data.success) {
-        alert("Could not create order. Please try again.")
+        toast.error(response.data.message || "Could not create order. Please try again.")
+        setIsPlacingOrder(false)
         return
       }
 
@@ -85,7 +116,8 @@ const PlaceOrder = () => {
       // Step 2: Load Razorpay script
       const scriptLoaded = await loadRazorpayScript()
       if (!scriptLoaded) {
-        alert("Razorpay failed to load. Check internet connection.")
+        toast.error("Razorpay failed to load. Check your internet connection.")
+        setIsPlacingOrder(false)
         return
       }
 
@@ -108,116 +140,144 @@ const PlaceOrder = () => {
               orderId: orderId,
             })
             if (verifyRes.data.success) {
-              markCouponUsed()     // mark one-time coupon as used + clear
+              clearCart()
+              markCouponUsed()
+              toast.success("Payment verified! Your delicious food is being prepared 🍳")
               navigate("/myorders")
             } else {
-              alert("Payment verification failed.")
-              navigate("/")
+              toast.error(verifyRes.data.message || "Payment verification failed.")
+              navigate("/myorders")
             }
           } catch (err) {
-            console.log("Verify error:", err)
-            alert("Verification error. Please contact support.")
+            console.error("Verify error:", err)
+            toast.error("Verification error. Please contact support.")
+            navigate("/myorders")
+          } finally {
+            setIsPlacingOrder(false)
           }
         },
 
         prefill: {
-          name: data.firstName + " " + data.lastName,
+          name: `${data.firstName} ${data.lastName}`.trim(),
           email: data.email,
+          contact: data.phone,
         },
-
-        readonly: { contact: true, email: true },
-        hidden: { contact: true },
 
         theme: { color: "#ff5c1a" },
 
         modal: {
           ondismiss: () => {
-            console.log("Payment popup closed by user")
+            setIsPlacingOrder(false)
+            toast.info("Payment window closed. Your cart items are saved.")
           }
         }
       }
 
       const rzp = new window.Razorpay(options)
-
-      rzp.on("payment.failed", (response) => {
-        alert("Payment failed: " + response.error.description)
-      })
-
       rzp.open()
 
     } catch (error) {
-      console.log("placeOrder error:", error)
-      alert("Something went wrong. Please try again.")
+      console.error("placeOrder error:", error)
+      const msg = error.response?.data?.message || "Failed to initiate payment. Please try again."
+      toast.error(msg)
+      setIsPlacingOrder(false)
     }
   }
 
   return (
     <form onSubmit={placeOrder} className='place-order'>
 
-      {/* Left: Delivery Form */}
-      <div className='place-order-left'>
+      {/* Left: Delivery Information */}
+      <div className="place-order-left">
         <p className='title'>Delivery Information</p>
 
-        <div className='multi-fields'>
+        <div className="multi-fields">
           <input
-            required name='firstName'
-            onChange={onChangeHandler} value={data.firstName}
-            type="text" placeholder='First Name'
+            required
+            name='firstName'
+            onChange={onChangeHandler}
+            value={data.firstName}
+            type="text"
+            placeholder='First Name'
           />
           <input
-            required name='lastName'
-            onChange={onChangeHandler} value={data.lastName}
-            type="text" placeholder='Last Name'
+            required
+            name='lastName'
+            onChange={onChangeHandler}
+            value={data.lastName}
+            type="text"
+            placeholder='Last Name'
           />
         </div>
 
         <input
-          required name='email'
-          onChange={onChangeHandler} value={data.email}
-          type="email" placeholder='Email Address'
+          required
+          name='email'
+          onChange={onChangeHandler}
+          value={data.email}
+          type="email"
+          placeholder='Email address'
         />
 
         <input
-          required name='street'
-          onChange={onChangeHandler} value={data.street}
-          type="text" placeholder='Street Address'
+          required
+          name='street'
+          onChange={onChangeHandler}
+          value={data.street}
+          type="text"
+          placeholder='Street address'
         />
 
-        <div className='multi-fields'>
+        <div className="multi-fields">
           <input
-            required name='city'
-            onChange={onChangeHandler} value={data.city}
-            type="text" placeholder='City'
+            required
+            name='city'
+            onChange={onChangeHandler}
+            value={data.city}
+            type="text"
+            placeholder='City'
           />
           <input
-            required name='state'
-            onChange={onChangeHandler} value={data.state}
-            type="text" placeholder='State'
+            required
+            name='state'
+            onChange={onChangeHandler}
+            value={data.state}
+            type="text"
+            placeholder='State'
           />
         </div>
 
-        <div className='multi-fields'>
+        <div className="multi-fields">
           <input
-            required name='zipcode'
-            onChange={onChangeHandler} value={data.zipcode}
-            type="text" placeholder='PIN Code'
+            required
+            name='zipcode'
+            onChange={onChangeHandler}
+            value={data.zipcode}
+            type="text"
+            placeholder='Zip code'
           />
           <input
-            required name='country'
-            onChange={onChangeHandler} value={data.country}
-            type="text" placeholder='Country'
+            required
+            name='country'
+            onChange={onChangeHandler}
+            value={data.country}
+            type="text"
+            placeholder='Country'
           />
         </div>
 
         <input
-          required name='phone'
-          onChange={onChangeHandler} value={data.phone}
-          type="tel" placeholder='Phone Number'
+          required
+          name='phone'
+          onChange={onChangeHandler}
+          value={data.phone}
+          type="tel"
+          placeholder='Phone number'
         />
       </div>
 
       {/* Right: Order Summary */}
-      <div className='place-order-right'>
+      <div className="place-order-right">
         <div className="cart-total">
           <h2>Order Summary</h2>
 
@@ -229,11 +289,10 @@ const PlaceOrder = () => {
 
           <div className="cart-total-details">
             <p>Delivery Fee</p>
-            <p>₹{DELIVERY_FEE}</p>
+            <p>₹{subtotal === 0 ? 0 : DELIVERY_FEE}</p>
           </div>
           <hr />
 
-          {/* Only shows when coupon is applied */}
           {discount > 0 && (
             <>
               <div className="cart-total-details">
@@ -249,8 +308,8 @@ const PlaceOrder = () => {
             <b>₹{totalAmount}</b>
           </div>
 
-          <button type='submit'>
-            Pay ₹{totalAmount} with Razorpay →
+          <button type='submit' disabled={isPlacingOrder} style={{ opacity: isPlacingOrder ? 0.7 : 1, cursor: isPlacingOrder ? 'not-allowed' : 'pointer' }}>
+            {isPlacingOrder ? "Initiating Payment Gateway..." : `Pay ₹${totalAmount} with Razorpay →`}
           </button>
         </div>
       </div>

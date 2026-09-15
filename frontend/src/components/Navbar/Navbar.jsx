@@ -35,6 +35,17 @@ const Navbar = () => {
         return () => document.removeEventListener('click', handleClickOutside)
     }, [])
 
+    const handleSearchClick = () => {
+        navigate('/')
+        setTimeout(() => {
+            const searchInput = document.querySelector('.search-bar input')
+            if (searchInput) {
+                searchInput.focus()
+                searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            }
+        }, 150)
+    }
+
     return (
         <div className='navbar'>
 
@@ -75,7 +86,13 @@ const Navbar = () => {
                 >
                     {isDark ? "☀️" : "🌙"}
                 </button>
-                <img src={assets.search_icon} alt="search" />
+                <img
+                    src={assets.search_icon}
+                    alt="search"
+                    style={{ cursor: "pointer" }}
+                    title="Search food menu"
+                    onClick={handleSearchClick}
+                />
 
                 <div className="navbar-cart-icon">
                     <Link to="/cart">
