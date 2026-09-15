@@ -3,6 +3,17 @@ import userModel from "../models/userModel.js"
 
 // ── Authenticate User Middleware ───────────────────────────
 const authMiddleware = async (req, res, next) => {
+    // 1. Support machine-to-machine admin secret token from decoupled admin dashboards
+    const adminHeader = req.headers["admin-token"] || req.headers["admintoken"]
+    const adminSecret = process.env.ADMIN_SECRET || process.env.JWT_SECRET
+    if (adminHeader && adminSecret && adminHeader === adminSecret) {
+        req.user = {
+            id: "admin",
+            role: "admin",
+        }
+        return next()
+    }
+
     let token = req.headers.token
 
     // Also support standard Authorization: Bearer <token>

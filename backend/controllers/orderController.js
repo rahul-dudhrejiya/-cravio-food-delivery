@@ -230,11 +230,52 @@ const listOrders = async (req, res) => {
 // ── Update Status (Admin) ─────────────────
 const updateStatus = async (req, res) => {
     try {
-        await orderModel.findByIdAndUpdate(req.body.orderId, { status: req.body.status })
-        res.json({ success: true, message: "Status updated" })
+        const { orderId, status } = req.body
+
+        if (!orderId || !status) {
+            return res.status(400).json({
+                success: false,
+                message: "Order ID and status are required"
+            })
+        }
+
+        const allowedStatuses = [
+            "Payment Pending",
+            "Food Processing",
+            "Out for delivery",
+            "Delivered",
+            "Payment Failed",
+            "Cancelled",
+        ]
+
+        if (!allowedStatuses.includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: `Invalid order status. Allowed: ${allowedStatuses.join(", ")}`
+            })
+        }
+
+        const updatedOrder = await orderModel.findByIdAndUpdate(
+            orderId,
+            { status },
+            { new: true, runValidators: true }
+        )
+
+        if (!updatedOrder) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found"
+            })
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Order status updated successfully",
+            order: updatedOrder
+        })
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: "Error" })
+        console.error("updateStatus error:", error)
+        res.status(500).json({ success: false, message: "Error updating order status" })
     }
 }
 
