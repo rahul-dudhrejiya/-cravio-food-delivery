@@ -1,5 +1,6 @@
 import orderModel from "../models/orderModel.js"
 import userModel from "../models/userModel.js"
+import foodModel from "../models/foodModel.js"
 import Razorpay from "razorpay"
 import crypto from "crypto"
 
@@ -8,29 +9,88 @@ const razorpay = new Razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET,
 })
 
+// Fixed delivery fee on server
+const DELIVERY_FEE = 40
+
 // ── Place Order ──────────────────────────
 const placeOrder = async (req, res) => {
     try {
-        // 1. Save order to DB
+        const { userId, items, address } = req.body
+
+        // 1. Validate items array
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({ success: false, message: "Cart is empty or invalid" })
+        }
+
+        // 2. Validate address
+        if (!address || typeof address !== "object") {
+            return res.status(400).json({ success: false, message: "Delivery address is required" })
+        }
+
+        // 3. Fetch authentic items from database
+        const itemIds = items.map(item => item._id)
+        const dbFoods = await foodModel.find({ _id: { $in: itemIds } })
+
+        // Create a lookup map for O(1) access
+        const foodMap = new Map(dbFoods.map(food => [String(food._id), food]))
+
+        // 4. Calculate subtotal authoritatively
+        let subtotal = 0
+        const verifiedOrderItems = []
+
+        for (const item of items) {
+            const dbFood = foodMap.get(String(item._id))
+            if (!dbFood) {
+                return res.status(404).json({
+                    success: false,
+                    message: `Item not found or no longer available: ${item.name || item._id}`
+                })
+            }
+
+            const quantity = Number(item.quantity)
+            if (!quantity || quantity <= 0 || !Number.isInteger(quantity)) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Invalid quantity for item: ${dbFood.name}`
+                })
+            }
+
+            subtotal += dbFood.price * quantity
+
+            // Snapshot verified item details (name, price from DB, not client)
+            verifiedOrderItems.push({
+                _id: dbFood._id,
+                name: dbFood.name,
+                price: dbFood.price,
+                category: dbFood.category,
+                image: dbFood.image,
+                quantity: quantity,
+            })
+        }
+
+        // 5. Compute final server-verified total
+        const finalTotal = subtotal + DELIVERY_FEE
+
+        // 6. Save order to DB with server-calculated amount
         const newOrder = new orderModel({
-            userId: req.body.userId,
-            items: req.body.items,
-            amount: req.body.amount,
-            address: req.body.address,
+            userId: userId,
+            items: verifiedOrderItems,
+            amount: finalTotal,
+            address: address,
         })
         await newOrder.save()
 
-        // 2. Clear cart
-        await userModel.findByIdAndUpdate(req.body.userId, { cartData: {} })
+        // 7. Clear user cart
+        await userModel.findByIdAndUpdate(userId, { cartData: {} })
 
-        // 3. Create Razorpay order (amount in paise = ₹ × 100)
+        // 8. Create Razorpay order with server-calculated amount (in paise)
         const razorpayOrder = await razorpay.orders.create({
-            amount: Math.round(req.body.amount * 100),
+            amount: Math.round(finalTotal * 100),
             currency: "INR",
             receipt: String(newOrder._id),
         })
 
-        res.json({
+        res.status(201).json({
             success: true,
             razorpayOrderId: razorpayOrder.id,
             amount: razorpayOrder.amount,
@@ -40,7 +100,7 @@ const placeOrder = async (req, res) => {
 
     } catch (error) {
         console.log("placeOrder error:", error)
-        res.json({ success: false, message: "Error placing order" })
+        res.status(500).json({ success: false, message: "Error placing order" })
     }
 }
 
