@@ -21,23 +21,37 @@ const app = express()
 const port = process.env.PORT || 5000
 
 // ── Middlewares ───────────────────────────
+const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://cravio.vercel.app",
+    "https://cravio-admin.vercel.app",
+    "https://cravio-food-delivery.vercel.app",
+]
+
 app.use(cors({
     origin: function (origin, callback) {
-        const allowed = [
-            "http://localhost:5173",
-            "http://localhost:5174",
-            "https://cravio-food-delivery.vercel.app",
-            // "https://cravio-admin.vercel.app"
-        ]
-        // Allow all vercel preview URLs for your project
-        if (!origin || allowed.includes(origin) || origin.endsWith(".vercel.app")) {
-            callback(null, true)
-        } else {
-            callback(new Error("Not allowed by CORS"))
-        }
-    },
+        // Allow server-to-server, Postman, mobile apps without browser origin
+        if (!origin) return callback(null, true)
 
-    credentials: true
+        // Check against explicit whitelist
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true)
+        }
+
+        // Allow preview deployments ONLY for your specific Cravio project on Vercel
+        // Matches e.g.: https://cravio-git-main-yourname.vercel.app
+        const isCravioPreview = /^https:\/\/cravio[a-z0-9-]*\.vercel\.app$/.test(origin)
+        if (isCravioPreview) {
+            return callback(null, true)
+        }
+
+        // Reject all other unauthorized domains
+        return callback(new Error("CORS policy: Access denied for this origin."), false)
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "token", "Authorization"]
 }))
 app.use(express.json())
 
@@ -58,6 +72,15 @@ app.use("/api/ai", aiRouter)
 // ── Health Check ──────────────────────────
 app.get("/", (req, res) => {
     res.send("✅ Cravio API is running!")
+})
+
+// ── Global Error Handler ──────────────────
+app.use((err, req, res, next) => {
+    if (err.message && err.message.includes("CORS")) {
+        return res.status(403).json({ success: false, message: err.message })
+    }
+    console.error("Unhandled error:", err)
+    res.status(500).json({ success: false, message: "Internal server error" })
 })
 
 // ── Start Server ──────────────────────────
