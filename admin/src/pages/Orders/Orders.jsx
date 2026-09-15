@@ -51,8 +51,8 @@ const Orders = ({ url }) => {
         {orders.length === 0 ? (
           <div className="orders-empty">No orders yet.</div>
         ) : (
-          orders.map((order, index) => (
-            <div key={index} className="order-item">
+          orders.map((order) => (
+            <div key={order._id} className="order-item">
 
               <img src={assets.parcel_icon} alt="parcel" />
 

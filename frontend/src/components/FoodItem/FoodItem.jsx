@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, memo } from 'react'
 import './FoodItem.css'
 import { assets } from '../../assets/assets'
 import { StoreContext } from '../../context/StoreContext'
@@ -16,14 +16,11 @@ const FoodItem = ({ id, name, price, description, image, onFoodClick }) => {
                 }
                 style={{ cursor: 'pointer' }}
             >
-
-                {/* BUG FIX: image is now full Cloudinary URL — use directly
-            OLD: src={url + "/images/" + image}
-            NEW: src={image} */}
                 <img
                     className='food-item-image'
                     src={image}
                     alt={name}
+                    loading="lazy"
                     onError={(e) => {
                         e.target.src = "https://via.placeholder.com/200x200?text=Food"
                     }}
@@ -43,14 +40,34 @@ const FoodItem = ({ id, name, price, description, image, onFoodClick }) => {
                 {!cartItems[id]
                     ? <img
                         className='add'
-                        onClick={() => addToCart(id)}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            addToCart(id)
+                        }}
                         src={assets.add_icon_white}
                         alt='Add to cart'
                     />
-                    : <div className='food-item-counter'>
-                        <img onClick={() => removeFromCart(id)} src={assets.remove_icon_red} alt='Remove' />
+                    : <div
+                        className='food-item-counter'
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <img
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                removeFromCart(id)
+                            }}
+                            src={assets.remove_icon_red}
+                            alt='Remove'
+                        />
                         <p>{cartItems[id]}</p>
-                        <img onClick={() => addToCart(id)} src={assets.add_icon_green} alt='Add' />
+                        <img
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                addToCart(id)
+                            }}
+                            src={assets.add_icon_green}
+                            alt='Add'
+                        />
                     </div>
                 }
             </div>
@@ -67,4 +84,4 @@ const FoodItem = ({ id, name, price, description, image, onFoodClick }) => {
     )
 }
 
-export default FoodItem
+export default memo(FoodItem)

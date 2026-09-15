@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'
+import { useContext, useState, useMemo } from 'react'
 import './FoodDisplay.css'
 import { StoreContext } from '../../context/StoreContext'
 import FoodItem from '../FoodItem/FoodItem'
@@ -8,31 +8,28 @@ const FoodDisplay = ({ category, search, onFoodClick }) => {
     const { food_list } = useContext(StoreContext);
     const [sort, setSort] = useState("default")
 
-    // Filter items based on selected category
-    const filtered = food_list
-        .filter(item => {
-            const matchCategory = category === "All" || category === item.category
-            // BUG FIX: Better search — checks name, description AND category
-            // Also handles partial words and ignores spaces
-            // search filter — checks name and description
-            const searchLower = search.toLowerCase().trim()
-            const matchSearch = search === "" ||
-                item.name.toLowerCase().includes(searchLower) ||
-                item.description.toLowerCase().includes(searchLower) ||
-                item.category.toLowerCase().includes(searchLower)    ||
-                // Handle common short forms
-                searchLower.split(' ').every(word => 
-                    item.name.toLowerCase().includes(word) ||
-                    item.description.toLowerCase().includes(word)
-                )
-            return matchCategory && matchSearch
-        })
-        .sort((a, b) => {
-            // Sort based on selected option
-            if (sort === "low-high") return a.price - b.price
-            if (sort === "high-low") return b.price - a.price
-            return 0  // default — no sort
-        })
+    // Memoize filtering and sorting to avoid recalculating on every re-render
+    const filtered = useMemo(() => {
+        return food_list
+            .filter(item => {
+                const matchCategory = category === "All" || category === item.category
+                const searchLower = search.toLowerCase().trim()
+                const matchSearch = search === "" ||
+                    item.name.toLowerCase().includes(searchLower) ||
+                    item.description.toLowerCase().includes(searchLower) ||
+                    item.category.toLowerCase().includes(searchLower) ||
+                    searchLower.split(' ').every(word => 
+                        item.name.toLowerCase().includes(word) ||
+                        item.description.toLowerCase().includes(word)
+                    )
+                return matchCategory && matchSearch
+            })
+            .sort((a, b) => {
+                if (sort === "low-high") return a.price - b.price
+                if (sort === "high-low") return b.price - a.price
+                return 0
+            })
+    }, [food_list, category, search, sort])
 
     // Show spinner while food is loading
     if (food_list.length === 0) {
@@ -74,9 +71,9 @@ const FoodDisplay = ({ category, search, onFoodClick }) => {
 
             {filtered.length > 0 ? (
                 <div className='food-display-list'>
-                    {filtered.map((item, index) => (
+                    {filtered.map((item) => (
                         <FoodItem
-                            key={index}
+                            key={item._id}
                             id={item._id}
                             name={item.name}
                             description={item.description}

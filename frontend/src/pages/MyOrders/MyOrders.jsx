@@ -115,61 +115,59 @@ const MyOrders = () => {
     }
 
     return (
-        <>
-            <StatusBar barStyle="dark-content" />
+        <div className='my-orders'>
+            <h2>My Orders</h2>
+            {loading ? (
+                <div className="my-orders-loading">
+                    <div className="spinner"></div>
+                    <p>Loading your orders...</p>
+                </div>
+            ) : data.length === 0 ? (
+                <div className="my-orders-empty">
+                    <div className="empty-icon">📦</div>
+                    <h3>No orders yet</h3>
+                    <p>Looks like you haven't ordered anything yet.</p>
+                    <button onClick={() => navigate('/')}>
+                        Order Now →
+                    </button>
+                </div>
+            ) : (
+                <div className='my-orders-container'>
+                    {data.map((order) => (
+                        <div key={order._id} className="my-orders-order">
 
-            <div className='my-orders'>
-                <h2>My Orders</h2>
-                {loading ? (
-                    <div className="my-orders-loading">
-                        <div className="spinner"></div>
-                        <p>Loading your orders...</p>
-                    </div>
-                ) : data.length === 0 ? (
-                    //this change for empty
-                    <div className="my-orders-empty">
-                        <div className="empty-icon">📦</div>
-                        <h3>No orders yet</h3>
-                        <p>Looks like you haven't ordered anything yet.</p>
-                        <button onClick={() => navigate('/')}>
-                            Order Now →
-                        </button>
-                    </div>
-                ) : (
-                    <div className='my-orders-container'>
-                        {data.map((order, index) => (
-                            <div key={index} className="my-orders-order">
+                            <img src={assets.parcel_icon} alt="parcel" />
 
-                                <img src={assets.parcel_icon} alt="parcel" />
+                            <p className="order-items-text">
+                                {order.items.map((item, i) =>
+                                    i === order.items.length - 1
+                                        ? `${item.name} × ${item.quantity}`
+                                        : `${item.name} × ${item.quantity}, `
+                                )}
+                            </p>
 
-                                <p className="order-items-text">
-                                    {order.items.map((item, i) =>
-                                        i === order.items.length - 1
-                                            ? `${item.name} × ${item.quantity}`
-                                            : `${item.name} × ${item.quantity}, `
-                                    )}
-                                </p>
+                            <p className="order-amount">₹{order.amount}.00</p>
 
-                                <p className="order-amount">₹{order.amount}.00</p>
+                            <p className="order-count">Items: {order.items.length}</p>
 
-                                <p className="order-count">Items: {order.items.length}</p>
+                            <p className="order-status" style={{ color: getStatusColor(order.status) }}>
+                                ● <b>{order.status}</b>
+                            </p>
 
-                                <p className="order-status" style={{ color: getStatusColor(order.status) }}>
-                                    ● <b>{order.status}</b>
-                                </p>
+                            {/* Live order progress bar for this specific order */}
+                            <StatusBar status={order.status} />
 
-                                <p className="ai-order-msg">
-                                    🤖 {getAiMessage(order)}
-                                </p>
+                            <p className="ai-order-msg">
+                                🍛 {getAiMessage(order)}
+                            </p>
 
-                                <button onClick={fetchOrders}>Track Order</button>
+                            <button onClick={fetchOrders}>Track Order</button>
 
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-        </>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
     )
 }
 

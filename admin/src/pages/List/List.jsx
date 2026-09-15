@@ -60,8 +60,8 @@ const List = ({ url }) => {
         {list.length === 0 ? (
           <div className="list-empty">No food items added yet.</div>
         ) : (
-          list.map((item, index) => (
-            <div key={index} className='list-table-format list-table-row'>
+          list.map((item) => (
+            <div key={item._id} className='list-table-format list-table-row'>
 
               {/* BUG FIX: item.image is now full Cloudinary URL
                   OLD (wrong): src={`${url}/images/` + item.image}
