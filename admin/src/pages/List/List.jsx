@@ -7,6 +7,7 @@ import { useCallback } from 'react'
 const List = ({ url }) => {
 
   const [list, setList] = useState([])
+  const [deletingId, setDeletingId] = useState(null)
 
   const fetchList = useCallback (async () => {
     try {
@@ -22,18 +23,25 @@ const List = ({ url }) => {
     }
   }, [url])
 
-  const removeFood = async (foodId) => {
+  const removeFood = async (item) => {
+    if (!item || !item._id) return
+    const confirmed = window.confirm(`Are you sure you want to delete "${item.name}"?\nThis will permanently remove the item from the menu and cloud storage.`)
+    if (!confirmed) return
+
+    setDeletingId(item._id)
     try {
-      const response = await axios.post(`${url}/api/food/remove`, { id: foodId })
+      const response = await axios.post(`${url}/api/food/remove`, { id: item._id })
       if (response.data.success) {
-        toast.success(response.data.message)
+        toast.success(response.data.message || `Deleted "${item.name}"`)
         await fetchList()
       } else {
-        toast.error("Error removing item")
+        toast.error(response.data.message || "Error removing item")
       }
     } catch (error) {
       toast.error("Could not remove item")
       console.log(error)
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -80,10 +88,13 @@ const List = ({ url }) => {
               <p>{item.category}</p>
               <p>₹{item.price}</p>
               <span
-                onClick={() => removeFood(item._id)}
-                className='list-delete'
+                onClick={() => deletingId !== item._id && removeFood(item)}
+                className={`list-delete ${deletingId === item._id ? 'deleting' : ''}`}
+                style={{ cursor: deletingId === item._id ? 'not-allowed' : 'pointer', opacity: deletingId === item._id ? 0.4 : 1 }}
                 title="Delete item"
-              >✕</span>
+              >
+                {deletingId === item._id ? "⏳" : "✕"}
+              </span>
             </div>
           ))
         )}

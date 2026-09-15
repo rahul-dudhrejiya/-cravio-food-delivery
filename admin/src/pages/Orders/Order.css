@@ -112,6 +112,45 @@
     border-color: #ff5c1a;
 }
 
+.order-badges {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+
+.payment-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.payment-badge.paid {
+    background: #e8f7ee;
+    color: #1b873f;
+    border: 1px solid #b7e8c6;
+}
+
+.payment-badge.unpaid {
+    background: #fff4e5;
+    color: #c95e00;
+    border: 1px solid #ffd8a8;
+}
+
+.coupon-badge {
+    font-size: 11px;
+    font-weight: 600;
+    background: #f3e8ff;
+    color: #6b21a8;
+    border: 1px solid #d8b4fe;
+    padding: 3px 8px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
 /* Responsive */
 @media (max-width: 1000px) {
     .order-item {

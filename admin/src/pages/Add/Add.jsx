@@ -7,6 +7,7 @@ import { toast } from 'react-toastify'
 const Add = ({ url }) => {
 
     const [image, setImage] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
     const [data, setData] = useState({
         name: "",
         description: "",
@@ -22,16 +23,25 @@ const Add = ({ url }) => {
     const onSubmitHandler = async (event) => {
         event.preventDefault()
 
+        if (isSubmitting) return
+
         if (!image) {
             toast.error("Please upload a food image")
             return
         }
 
+        const numericPrice = Number(data.price)
+        if (isNaN(numericPrice) || numericPrice <= 0) {
+            toast.error("Please enter a valid positive price")
+            return
+        }
+
+        setIsSubmitting(true)
         const formData = new FormData()
-        formData.append("name", data.name)
-        formData.append("description", data.description)
-        formData.append("price", Number(data.price))
-        formData.append("category", data.category)
+        formData.append("name", data.name.trim())
+        formData.append("description", data.description.trim())
+        formData.append("price", numericPrice)
+        formData.append("category", data.category.trim())
         formData.append("image", image)
 
         try {
@@ -46,6 +56,8 @@ const Add = ({ url }) => {
         } catch (error) {
             toast.error("Error adding food item")
             console.log(error)
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
@@ -130,7 +142,9 @@ const Add = ({ url }) => {
                     </div>
                 </div>
 
-                <button type='submit' className='add-btn'>Add Food Item</button>
+                <button type='submit' className='add-btn' disabled={isSubmitting}>
+                    {isSubmitting ? "Adding Food Item..." : "Add Food Item"}
+                </button>
             </form>
         </div>
     )

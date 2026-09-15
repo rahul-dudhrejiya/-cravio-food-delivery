@@ -16,26 +16,41 @@ import { useNavigate } from 'react-router-dom'
 
 
 const StatusBar = ({ status }) => {
+    if (status === "Payment Pending") {
+        return (
+            <div className="status-banner status-pending">
+                <span>⏳</span> Awaiting Payment Confirmation
+            </div>
+        )
+    }
+    if (status === "Payment Failed") {
+        return (
+            <div className="status-banner status-failed">
+                <span>❌</span> Payment Failed — Order Not Processed
+            </div>
+        )
+    }
+    if (status === "Cancelled") {
+        return (
+            <div className="status-banner status-cancelled">
+                <span>🚫</span> Order Cancelled
+            </div>
+        )
+    }
 
     const steps = ["Food Processing", "Out for delivery", "Delivered"]
-
     const current = steps.indexOf(status)
 
     return (
         <div className="status-progress">
-
             {steps.map((step, i) => (
                 <div key={i} className="status-wrapper">
-
                     {/* Step */}
                     <div className={`status-step ${i <= current ? 'active' : ''}`}>
-
                         <div className="status-dot">
                             {i <= current ? "✓" : i + 1}
                         </div>
-
                         <p>{step}</p>
-
                     </div>
 
                     {/* Line */}
@@ -146,7 +161,14 @@ const MyOrders = () => {
                                 )}
                             </p>
 
-                            <p className="order-amount">₹{order.amount}.00</p>
+                            <div className="order-price-info">
+                                <p className="order-amount">₹{order.amount}.00</p>
+                                {order.discount > 0 && (
+                                    <span className="order-discount-saved">
+                                        🎉 Saved ₹{order.discount} {order.coupon ? `(${order.coupon})` : ''}
+                                    </span>
+                                )}
+                            </div>
 
                             <p className="order-count">Items: {order.items.length}</p>
 
