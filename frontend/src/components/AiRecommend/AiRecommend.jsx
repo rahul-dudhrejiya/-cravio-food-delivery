@@ -19,16 +19,11 @@ const AiRecommend = () => {
         setError("")
 
         try {
-            // Build menu text from food list
-            const menuText = food_list
-                .map(f => `${f.name} (₹${f.price}) - ${f.category} - ${f.description}`)
-                .join('\n')
-
-            // BUG FIX: Call YOUR backend, not Anthropic directly
+            // Send user mood to backend (backend fetches authentic menu directly from database)
             const response = await fetch(url + "/api/ai/recommend", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ mood, menuText })
+                body: JSON.stringify({ mood })
             })
 
             const data = await response.json()
