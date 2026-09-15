@@ -59,8 +59,13 @@ const Profile = () => {
         navigate("/")
     }
 
+    useEffect(() => {
+        if (!token) {
+            navigate("/")
+        }
+    }, [token, navigate])
+
     if (!token) {
-        navigate("/")
         return null
     }
 
