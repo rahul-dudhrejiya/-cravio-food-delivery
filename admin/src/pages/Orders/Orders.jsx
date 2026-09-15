@@ -7,6 +7,7 @@ import { assets } from '../../assets/assets'
 const Orders = ({ url }) => {
 
   const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
   const [updatingOrderId, setUpdatingOrderId] = useState(null)
 
   const fetchAllOrders = useCallback(async () => {
@@ -20,12 +21,18 @@ const Orders = ({ url }) => {
     } catch (error) {
       toast.error("Could not connect to server")
       console.log(error)
+    } finally {
+      setLoading(false)
     }
   }, [url])
 
   const statusHandler = async (event, orderId) => {
     const newStatus = event.target.value
     setUpdatingOrderId(orderId)
+
+    // Optimistic UI update
+    setOrders(prev => prev.map(o => o._id === orderId ? { ...o, status: newStatus } : o))
+
     try {
       const response = await axios.post(url + "/api/order/status", {
         orderId,
@@ -33,13 +40,14 @@ const Orders = ({ url }) => {
       })
       if (response.data.success) {
         toast.success(`Order status updated to "${newStatus}"`)
-        await fetchAllOrders()
       } else {
         toast.error(response.data.message || "Failed to update status")
+        await fetchAllOrders() // Rollback on failure
       }
     } catch (error) {
       toast.error("Error updating status")
       console.log(error)
+      await fetchAllOrders() // Rollback on error
     } finally {
       setUpdatingOrderId(null)
     }
@@ -56,7 +64,9 @@ const Orders = ({ url }) => {
       <h3 className='orders-title'>All Orders</h3>
 
       <div className='order-list'>
-        {orders.length === 0 ? (
+        {loading ? (
+          <div className="orders-empty">Loading orders...</div>
+        ) : orders.length === 0 ? (
           <div className="orders-empty">No orders yet.</div>
         ) : (
           orders.map((order) => (

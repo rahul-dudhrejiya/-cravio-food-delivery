@@ -9,7 +9,9 @@ const Cart = () => {
   const {
     cartItems,
     food_list,
+    addToCart,
     removeFromCart,
+    removeFromCartCompletely,
     getTotalCartAmount,
     discount,
     couponCode,
@@ -64,11 +66,26 @@ const Cart = () => {
                   <img src={item.image} alt={item.name} />
                   <p>{item.name}</p>
                   <p>₹{item.price}</p>
-                  <p>{cartItems[item._id]}</p>
+                  <div className="cart-qty-stepper">
+                    <button
+                      type="button"
+                      className="stepper-btn stepper-minus"
+                      onClick={() => removeFromCart(item._id)}
+                      title="Decrease quantity"
+                    >−</button>
+                    <span className="stepper-count">{cartItems[item._id]}</span>
+                    <button
+                      type="button"
+                      className="stepper-btn stepper-plus"
+                      onClick={() => addToCart(item._id)}
+                      title="Increase quantity"
+                    >+</button>
+                  </div>
                   <p>₹{item.price * cartItems[item._id]}</p>
                   <span
                     className='cross'
-                    onClick={() => removeFromCart(item._id)}
+                    onClick={() => removeFromCartCompletely(item._id)}
+                    title={`Remove all ${item.name} from cart`}
                   >✕</span>
                 </div>
                 <hr />

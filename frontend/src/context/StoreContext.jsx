@@ -11,7 +11,14 @@ const StoreContextProvider = (props) => {
   const [token, setToken] = useState("")
   const [showLogin, setShowLogin] = useState(false)
   const [food_list, setFoodList] = useState([])
-  const [favourites, setFavourites] = useState([])
+  const [favourites, setFavourites] = useState(() => {
+    try {
+      const saved = localStorage.getItem("cravio_favourites")
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
+  })
   const [discount, setDiscount] = useState(0)
   const [couponCode, setCouponCode] = useState("")
   const [couponApplied, setCouponApplied] = useState(false)
@@ -30,9 +37,41 @@ const StoreContextProvider = (props) => {
     setCouponApplied(false)
   }
 
+  // ── Centralized Login & Immediate Cart Hydration ─
+  const login = async (newToken, user) => {
+    setToken(newToken)
+    localStorage.setItem("token", newToken)
+    if (user) {
+      if (user.name) localStorage.setItem("userName", user.name)
+      if (user.email) localStorage.setItem("userEmail", user.email)
+    }
+    await loadCartData(newToken)
+  }
+
   // ── Clear Cart ───────────────────────────
   const clearCart = () => {
     setCartItems({})
+  }
+
+  // ── Remove Item Completely from Cart ─────
+  const removeFromCartCompletely = async (itemId) => {
+    setCartItems(prev => {
+      const updated = { ...prev }
+      delete updated[itemId]
+      return updated
+    })
+    toast.info("Item removed from cart", { autoClose: 1000 })
+    if (token) {
+      try {
+        await axios.post(
+          url + "/api/cart/remove",
+          { itemId, removeAll: true },
+          { headers: { token } }
+        )
+      } catch (err) {
+        console.error("removeFromCartCompletely error:", err)
+      }
+    }
   }
 
   // ── Auto-logout on 401 Token Expiration ──
@@ -113,13 +152,20 @@ const StoreContextProvider = (props) => {
   // ── Favourites ───────────────────────────
   const toggleFavourite = (itemId) => {
     setFavourites(prev => {
+      let updated
       if (prev.includes(itemId)) {
         toast.info("Removed from favourites")
-        return prev.filter(id => id !== itemId)
+        updated = prev.filter(id => id !== itemId)
       } else {
         toast.success("Added to favourites ❤️")
-        return [...prev, itemId]
+        updated = [...prev, itemId]
       }
+      try {
+        localStorage.setItem("cravio_favourites", JSON.stringify(updated))
+      } catch (err) {
+        console.error("Failed to save favourites to localStorage:", err)
+      }
+      return updated
     })
   }
 
@@ -180,6 +226,14 @@ const StoreContextProvider = (props) => {
     removeCoupon()
   }
 
+  // ── Auto-Revoke Coupon if Subtotal Drops to 0 ──
+  useEffect(() => {
+    const subtotal = getTotalCartAmount()
+    if (couponApplied && subtotal === 0) {
+      removeCoupon()
+    }
+  }, [cartItems, couponApplied])
+
   // ── On mount ─────────────────────────────
   useEffect(() => {
     async function init() {
@@ -200,12 +254,14 @@ const StoreContextProvider = (props) => {
     clearCart,
     addToCart,
     removeFromCart,
+    removeFromCartCompletely,
     getTotalCartAmount,
     url,
     token,
     setToken,
     showLogin,
     setShowLogin,
+    login,
     logout,
     favourites,
     toggleFavourite,

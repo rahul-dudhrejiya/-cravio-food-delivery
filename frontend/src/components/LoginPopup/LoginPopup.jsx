@@ -8,7 +8,7 @@ import { toast } from 'react-toastify'
 
 const LoginPopup = ({ setShowLogin, }) => {
 
-  const { url, setToken } = useContext(StoreContext)
+  const { url, setToken, login } = useContext(StoreContext)
 
   const [currState, setCurrState] = useState("Sign Up");
   const [loading, setLoading] = useState(false)
@@ -55,11 +55,15 @@ const LoginPopup = ({ setShowLogin, }) => {
       const response = await axios.post(newUrl, payload);
 
       if (response.data.success) {
-        setToken(response.data.token);
-        localStorage.setItem("token", response.data.token);
-        if (response.data.user) {
-          localStorage.setItem("userName", response.data.user.name);
-          localStorage.setItem("userEmail", response.data.user.email);
+        if (login) {
+          await login(response.data.token, response.data.user);
+        } else {
+          setToken(response.data.token);
+          localStorage.setItem("token", response.data.token);
+          if (response.data.user) {
+            localStorage.setItem("userName", response.data.user.name);
+            localStorage.setItem("userEmail", response.data.user.email);
+          }
         }
         setShowLogin(false);
 

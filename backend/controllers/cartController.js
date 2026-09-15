@@ -41,7 +41,7 @@ const addToCart = async (req, res) => {
 const removeFromCart = async (req, res) => {
     try {
         const userId = req.user?.id || req.body.userId
-        const { itemId } = req.body
+        const { itemId, removeAll } = req.body
 
         if (!itemId) {
             return res.status(400).json({ success: false, message: "Item ID is required" })
@@ -54,15 +54,15 @@ const removeFromCart = async (req, res) => {
 
         const currentQty = userData.cartData[itemId] || 0
 
-        if (currentQty > 1) {
-            // Decrement atomically
-            await userModel.findByIdAndUpdate(userId, {
-                $inc: { [`cartData.${itemId}`]: -1 }
-            })
-        } else {
-            // Quantity reached 0: permanently UNSET/delete the key to prevent document bloat
+        if (removeAll || currentQty <= 1) {
+            // Quantity reached 0 or explicit deletion: permanently UNSET/delete the key
             await userModel.findByIdAndUpdate(userId, {
                 $unset: { [`cartData.${itemId}`]: "" }
+            })
+        } else {
+            // Decrement atomically by 1
+            await userModel.findByIdAndUpdate(userId, {
+                $inc: { [`cartData.${itemId}`]: -1 }
             })
         }
 

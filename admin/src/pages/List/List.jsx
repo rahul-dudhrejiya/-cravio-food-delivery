@@ -7,6 +7,7 @@ import { useCallback } from 'react'
 const List = ({ url }) => {
 
   const [list, setList] = useState([])
+  const [loading, setLoading] = useState(true)
   const [deletingId, setDeletingId] = useState(null)
 
   const fetchList = useCallback (async () => {
@@ -20,6 +21,8 @@ const List = ({ url }) => {
     } catch (error) {
       toast.error("Could not connect to server")
       console.log(error)
+    } finally {
+      setLoading(false)
     }
   }, [url])
 
@@ -65,7 +68,9 @@ const List = ({ url }) => {
           <b>Action</b>
         </div>
 
-        {list.length === 0 ? (
+        {loading ? (
+          <div className="list-empty">Loading food items...</div>
+        ) : list.length === 0 ? (
           <div className="list-empty">No food items added yet.</div>
         ) : (
           list.map((item) => (

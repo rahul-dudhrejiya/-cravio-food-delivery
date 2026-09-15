@@ -68,11 +68,16 @@ const StatusBar = ({ status }) => {
 const MyOrders = () => {
 
     const navigate = useNavigate();
-    const { url, token } = useContext(StoreContext)
+    const { url, token, setShowLogin } = useContext(StoreContext)
     const [data, setData] = useState([])
     const [loading, setLoading] = useState(true)
+    const [trackingId, setTrackingId] = useState(null)
 
     const fetchOrders = useCallback(async () => {
+        if (!token) {
+            setLoading(false)
+            return
+        }
         try {
             setLoading(true)
             const response = await axios.post(
@@ -80,28 +85,21 @@ const MyOrders = () => {
                 {},
                 { headers: { token } }
             )
-            setData(response.data.data)
+            setData(response.data.data || [])
         } catch (error) {
             console.log("Error fetching orders:", error)
         } finally {
             setLoading(false)
         }
-    }, [url, token, setData, setLoading])
+    }, [url, token])
 
     useEffect(() => {
-        if (!token) return;
-
-        const loadOrders = async () => {
-            setLoading(true);
-            try {
-                await fetchOrders();
-            } finally {
-                setLoading(false)
-            }
-        };
-
-        loadOrders();
-    }, [token, fetchOrders]);
+        if (!token) {
+            setLoading(false)
+            return
+        }
+        fetchOrders()
+    }, [token, fetchOrders])
 
     // ── Status color helper ──────────────────
     const getStatusColor = (status) => {
@@ -112,27 +110,32 @@ const MyOrders = () => {
 
     // ── AI Smart Receipt Message ──────────────────
     const getAiMessage = (order) => {
-
+        const items = order.items || []
         const messages = [
-            `Great choice! Your order of ${order.items.length} items is being prepared with love 🍛`,
-
+            `Great choice! Your order of ${items.length} items is being prepared with love 🍛`,
             `Yum! ₹${order.amount} well spent on delicious pure veg food! 🌿`,
-
             `Your food is on its way! Sit back and relax 😊`,
-
-            `Pure veg goodness incoming! Your ${order.items[0]?.name} will be amazing 🔥`,
+            `Pure veg goodness incoming! Your ${items[0]?.name || "meal"} will be amazing 🔥`,
         ]
 
         // Deterministic message selection
-        const idx = order._id.charCodeAt(0) % messages.length
-
+        const idx = (order._id || "a").charCodeAt(0) % messages.length
         return messages[idx]
     }
 
     return (
         <div className='my-orders'>
             <h2>My Orders</h2>
-            {loading ? (
+            {!token ? (
+                <div className="my-orders-empty">
+                    <div className="empty-icon">🔒</div>
+                    <h3>Sign In to View Your Orders</h3>
+                    <p>Sign in to view your live order status, receipt history, and delivery tracking.</p>
+                    <button onClick={() => setShowLogin(true)}>
+                        Sign In Now →
+                    </button>
+                </div>
+            ) : loading ? (
                 <div className="my-orders-loading">
                     <div className="spinner"></div>
                     <p>Loading your orders...</p>
@@ -154,8 +157,8 @@ const MyOrders = () => {
                             <img src={assets.parcel_icon} alt="parcel" />
 
                             <p className="order-items-text">
-                                {order.items.map((item, i) =>
-                                    i === order.items.length - 1
+                                {(order.items || []).map((item, i) =>
+                                    i === (order.items || []).length - 1
                                         ? `${item.name} × ${item.quantity}`
                                         : `${item.name} × ${item.quantity}, `
                                 )}
@@ -170,7 +173,7 @@ const MyOrders = () => {
                                 )}
                             </div>
 
-                            <p className="order-count">Items: {order.items.length}</p>
+                            <p className="order-count">Items: {order.items?.length || 0}</p>
 
                             <p className="order-status" style={{ color: getStatusColor(order.status) }}>
                                 ● <b>{order.status}</b>
@@ -183,7 +186,16 @@ const MyOrders = () => {
                                 🍛 {getAiMessage(order)}
                             </p>
 
-                            <button onClick={fetchOrders}>Track Order</button>
+                            <button
+                                onClick={async () => {
+                                    setTrackingId(order._id)
+                                    await fetchOrders()
+                                    setTrackingId(null)
+                                }}
+                                disabled={trackingId === order._id}
+                            >
+                                {trackingId === order._id ? "Refreshing..." : "Track Order"}
+                            </button>
 
                         </div>
                     ))}
